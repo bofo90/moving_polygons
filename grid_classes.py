@@ -37,7 +37,7 @@ class Square_Lattice:
         return self.get_wave(t, 2, 7)
 
     def size_square(self, t):
-        return self.get_wave(t, 0.3, 2)
+        return self.get_wave(t, 0.3, 1.1)
 
     def angle_square(self, t):
         return self.get_wave(t, 0, 1)*self.rot_angles

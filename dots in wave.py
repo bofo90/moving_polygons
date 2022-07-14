@@ -17,8 +17,8 @@ fig = Fig()
 # fig.create_square_points(grid)
 # fig.create_time_slider(fig.update_point_pos_size)
 
-fig.create_square_squares(grid)
-fig.create_time_slider(fig.update_squares_size_rot)
+fig.create_square_squares(grid, t=0.25)
+
 
 plt.tight_layout()
 plt.show()

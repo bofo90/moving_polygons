@@ -3,22 +3,41 @@ from matplotlib.transforms import Affine2D
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
+import numpy as np
+
 
 class Figure_Lattice:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, negative=False) -> None:
+        self.color = "#ED6D3C" #"#D9B800"
+        self.mid = "#868179"
+        if negative:
+            self.gray = "#E6E1D6"
+            self.white = "#252422"
+        else:
+            self.gray = "#252422"
+            self.white = "#E6E1D6"
 
-    def create_square_squares(self, grid):
+    def create_square_squares(self, grid, t=0, slider=False):
 
-        self.fig = plt.figure(figsize=(7, 7), facecolor='0.2')
+        self.fig = plt.figure(figsize=(7, 7), facecolor=self.mid)
         self.ax = plt.subplot(111)
 
         self.grid = grid
-        sizes = grid.size_square(0)
-        angles = grid.angle_square(0)
+        sizes = grid.size_square(t)
+        angles = grid.angle_square(t)
 
-        self.pats = [patches.Rectangle(grid.pos[i, :]-sizes[i]/2, sizes[i], sizes[i], fc='w', ec='0.2')
+        red_pat = np.random.random(len(grid.pos)) < 0.95
+        edge_color = [self.gray if i else self.color for i in red_pat]
+        fill_color = [self.white if i else self.color for i in red_pat]
+
+        # red_pat = np.random.randint(len(grid.pos), size=2)
+        # edge_color = [
+        #     self.gray if i not in red_pat else self.color for i in range(len(grid.pos))]
+        # fill_color = [
+        #     self.white if i not in red_pat else self.color for i in range(len(grid.pos))]
+
+        self.pats = [patches.Rectangle(grid.pos[i, :]-sizes[i]/2, sizes[i], sizes[i], fc=fill_color[i], ec=self.gray, linewidth=1)
                      for i in range(len(grid.pos))]
 
         for i, p in enumerate(self.pats):
@@ -26,13 +45,16 @@ class Figure_Lattice:
                 *grid.pos[i, :], angles[i])+self.ax.transData)
             self.ax.add_patch(p)
 
-        d = 0.4
+        d = 0.5
         big_frame = patches.Rectangle(
-            (0-d, 0-d), grid.N-1+2*d, grid.N-1+2*d, fc='w', ec='0.2', zorder=0)
+            (0-d, 0-d), grid.N-1+2*d, grid.N-1+2*d, fc=self.gray, ec=self.mid, zorder=0)
         self.ax.add_patch(big_frame)
         self.ax.set_xlim(-1.5, grid.N+0.5)
         self.ax.set_ylim(-1.5, grid.N+0.5)
         self.ax.set_axis_off()
+
+        if slider:
+            self.create_time_slider(self.update_squares_size_rot)
 
     def create_time_slider(self, func):
         ax_time = plt.axes([0.1, 0.05, 0.8, 0.03])
@@ -58,7 +80,7 @@ class Figure_Lattice:
 
     def create_square_points(self, grid):
 
-        self.fig = plt.figure(figsize=(7, 7), facecolor='0.2')
+        self.fig = plt.figure(figsize=(7, 7), facecolor=self.mid)
         self.ax = plt.subplot(111)
 
         self.grid = grid
@@ -66,11 +88,11 @@ class Figure_Lattice:
         displ = grid.displacement(0)
 
         self.points = self.ax.scatter(
-            displ[:, 0], displ[:, 1], s=sizes, c='0.2')
+            displ[:, 0], displ[:, 1], s=sizes, c=self.white)
 
         d = 0
         big_frame = patches.Rectangle(
-            (0-d, 0-d), grid.N-1+2*d, grid.N-1+2*d, fc='w', ec='0.2', zorder=0)
+            (0-d, 0-d), grid.N-1+2*d, grid.N-1+2*d, fc=self.white, ec=self.mid, zorder=0)
         self.ax.add_patch(big_frame)
         self.ax.set_xlim(-1.5, grid.N+0.5)
         self.ax.set_ylim(-1.5, grid.N+0.5)
