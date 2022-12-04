@@ -9,8 +9,8 @@ import numpy as np
 class Figure_Lattice:
 
     def __init__(self, negative=False) -> None:
-        self.color = "#ED6D3C" #"#D9B800"
-        self.mid = "#868179"
+        self.color = "#ED6D3C"  # "#D9B800"
+        self.mid = "#E6E1D6"  # "#868179"
         if negative:
             self.gray = "#E6E1D6"
             self.white = "#252422"
@@ -28,7 +28,7 @@ class Figure_Lattice:
         angles = grid.angle_square(t)
 
         red_pat = np.random.random(len(grid.pos)) < 0.95
-        edge_color = [self.gray if i else self.color for i in red_pat]
+        # edge_color = [self.gray if i else self.color for i in red_pat]
         fill_color = [self.white if i else self.color for i in red_pat]
 
         # red_pat = np.random.randint(len(grid.pos), size=2)
@@ -37,7 +37,11 @@ class Figure_Lattice:
         # fill_color = [
         #     self.white if i not in red_pat else self.color for i in range(len(grid.pos))]
 
-        self.pats = [patches.Rectangle(grid.pos[i, :]-sizes[i]/2, sizes[i], sizes[i], fc=fill_color[i], ec=self.gray, linewidth=1)
+        self.pats = [patches.RegularPolygon(grid.pos[i, :],
+                                            4, sizes[i], np.pi/4,
+                                            fc=fill_color[i],
+                                            ec=self.gray,
+                                            linewidth=1)
                      for i in range(len(grid.pos))]
 
         for i, p in enumerate(self.pats):
@@ -45,12 +49,12 @@ class Figure_Lattice:
                 *grid.pos[i, :], angles[i])+self.ax.transData)
             self.ax.add_patch(p)
 
-        d = 0.5
-        big_frame = patches.Rectangle(
-            (0-d, 0-d), grid.N-1+2*d, grid.N-1+2*d, fc=self.gray, ec=self.mid, zorder=0)
+        d = 0.65
+        big_frame = patches.RegularPolygon(
+            (0, 0), 4, grid.furth_dist+d, np.pi/4, fc=self.gray, ec=self.mid, zorder=0)
         self.ax.add_patch(big_frame)
-        self.ax.set_xlim(-1.5, grid.N+0.5)
-        self.ax.set_ylim(-1.5, grid.N+0.5)
+        self.ax.set_xlim(-grid.N/2-1.5, grid.N/2+1.5)
+        self.ax.set_ylim(-grid.N/2-1.5, grid.N/2+1.5)
         self.ax.set_axis_off()
 
         if slider:

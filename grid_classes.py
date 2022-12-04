@@ -12,10 +12,13 @@ class Square_Lattice:
         self.rot_angles = np.random.uniform(-70, 70, size=len(self.pos))
 
     def create_lattice_points(self):
-        pos = np.zeros((self.N, self.N, 2))
+        pos = np.zeros((self.N, self.N, 2)).astype(float)
         pos[:, :, 0], pos[:, :, 1] = np.meshgrid(
             np.arange(self.N), np.arange(self.N))
         self.pos = np.reshape(pos, (-1, 2))
+        self.pos -= (self.N-1)/2
+
+        self.furth_dist = np.max(np.sqrt(np.sum(self.pos**2, axis=1)))
 
     def sin_wave(self, t):
         x = np.sum(self.pos*self.k, axis=1)
@@ -37,7 +40,7 @@ class Square_Lattice:
         return self.get_wave(t, 2, 7)
 
     def size_square(self, t):
-        return self.get_wave(t, 0.3, 1.1)
+        return self.get_wave(t, 0.2, 0.8)
 
     def angle_square(self, t):
         return self.get_wave(t, 0, 1)*self.rot_angles
