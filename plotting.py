@@ -21,6 +21,10 @@ class Figure_Lattice:
     def create_square_squares(self, grid, t=0, slider=False):
 
         self.fig = plt.figure(figsize=(7, 7), facecolor=self.mid)
+        self.fig.subplots_adjust(left=0.,
+                                 bottom=0.,
+                                 right=1.,
+                                 top=1.)
         self.ax = plt.subplot(111)
 
         self.grid = grid
@@ -37,8 +41,17 @@ class Figure_Lattice:
         # fill_color = [
         #     self.white if i not in red_pat else self.color for i in range(len(grid.pos))]
 
+        # self.pats = [patches.RegularPolygon(grid.pos[i, :],
+        #                                     4, sizes[i], np.pi/4,
+        #                                     fc=fill_color[i],
+        #                                     ec=self.gray,
+        #                                     linewidth=1)
+        #              for i in range(len(grid.pos))]
+
         self.pats = [patches.RegularPolygon(grid.pos[i, :],
-                                            4, sizes[i], np.pi/4,
+                                            grid.num_edges,
+                                            sizes[i],
+                                            np.pi/grid.num_edges,
                                             fc=fill_color[i],
                                             ec=self.gray,
                                             linewidth=1)
@@ -51,10 +64,11 @@ class Figure_Lattice:
 
         d = 0.65
         big_frame = patches.RegularPolygon(
-            (0, 0), 4, grid.furth_dist+d, np.pi/4, fc=self.gray, ec=self.mid, zorder=0)
+            (0, 0), grid.num_edges, grid.furth_dist+d,
+            np.pi/grid.num_edges, fc=self.gray, ec=self.mid, zorder=0)
         self.ax.add_patch(big_frame)
-        self.ax.set_xlim(-grid.N/2-1.5, grid.N/2+1.5)
-        self.ax.set_ylim(-grid.N/2-1.5, grid.N/2+1.5)
+        self.ax.set_xlim(np.min(grid.pos)-2, np.max(grid.pos)+2)
+        self.ax.set_ylim(np.min(grid.pos)-2, np.max(grid.pos)+2)
         self.ax.set_axis_off()
 
         if slider:
