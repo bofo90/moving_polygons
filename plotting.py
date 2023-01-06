@@ -18,9 +18,9 @@ class Figure_Lattice:
             self.gray = "#252422"
             self.white = "#E6E1D6"
 
-    def create_square_squares(self, grid, t=0, slider=False):
+    def create_poly(self, grid, t=0, slider=False):
 
-        self.fig = plt.figure(figsize=(7, 7), facecolor=self.mid)
+        self.fig = plt.figure(figsize=(6, 6), facecolor=self.mid)
         self.fig.subplots_adjust(left=0.,
                                  bottom=0.,
                                  right=1.,
@@ -28,51 +28,24 @@ class Figure_Lattice:
         self.ax = plt.subplot(111)
 
         self.grid = grid
-        sizes = grid.size_square(t)
-        angles = grid.angle_square(t)
 
         red_pat = np.random.random(len(grid.pos)) < 0.95
-        # edge_color = [self.gray if i else self.color for i in red_pat]
-        fill_color = [self.white if i else self.color for i in red_pat]
+        self.fill_color = [self.white if i else self.color for i in red_pat]
 
-        # red_pat = np.random.randint(len(grid.pos), size=2)
-        # edge_color = [
-        #     self.gray if i not in red_pat else self.color for i in range(len(grid.pos))]
-        # fill_color = [
-        #     self.white if i not in red_pat else self.color for i in range(len(grid.pos))]
-
-        # self.pats = [patches.RegularPolygon(grid.pos[i, :],
-        #                                     4, sizes[i], np.pi/4,
-        #                                     fc=fill_color[i],
-        #                                     ec=self.gray,
-        #                                     linewidth=1)
-        #              for i in range(len(grid.pos))]
-
-        self.pats = [patches.RegularPolygon(grid.pos[i, :],
-                                            grid.num_edges,
-                                            sizes[i],
-                                            np.pi/grid.num_edges,
-                                            fc=fill_color[i],
-                                            ec=self.gray,
-                                            linewidth=1)
-                     for i in range(len(grid.pos))]
-
-        for i, p in enumerate(self.pats):
-            p.set_transform(Affine2D().rotate_deg_around(
-                *grid.pos[i, :], angles[i])+self.ax.transData)
-            self.ax.add_patch(p)
+        self.pats = []
+        self.update_poly(t)
 
         d = 0.65
         big_frame = patches.RegularPolygon(
-            (0, 0), grid.num_edges, grid.furth_dist+d,
-            np.pi/grid.num_edges, fc=self.gray, ec=self.mid, zorder=0)
+            (0, 0), grid.big_poly, grid.furth_dist+d,
+            np.pi/grid.big_poly, fc=self.gray, ec=self.mid, zorder=0)
         self.ax.add_patch(big_frame)
-        self.ax.set_xlim(np.min(grid.pos)-2, np.max(grid.pos)+2)
-        self.ax.set_ylim(np.min(grid.pos)-2, np.max(grid.pos)+2)
+        self.ax.set_xlim(-grid.furth_dist-2, grid.furth_dist+2)
+        self.ax.set_ylim(-grid.furth_dist-2, grid.furth_dist+2)
         self.ax.set_axis_off()
 
         if slider:
-            self.create_time_slider(self.update_squares_size_rot)
+            self.create_time_slider(self.update_poly)
 
     def create_time_slider(self, func):
         ax_time = plt.axes([0.1, 0.05, 0.8, 0.03])
@@ -85,20 +58,37 @@ class Figure_Lattice:
         )
         self.time_slider.on_changed(func)
 
-    def update_squares_size_rot(self, val):
-        new_size = self.grid.size_square(val)
-        new_angle = self.grid.angle_square(val)
+    def update_poly(self, val):
+        new_size = self.grid.size_poly(val)
+        new_angle = self.grid.angle_poly(val)
+
+        [p.remove() for p in self.pats]
+
+        self.pats = [patches.RegularPolygon(self.grid.pos[i, :],
+                                            self.grid.smal_poly,
+                                            new_size[i],
+                                            np.pi/self.grid.smal_poly,
+                                            fc=self.fill_color[i],
+                                            ec=self.gray,
+                                            linewidth=1)
+                     for i in range(len(self.grid.pos))]
+
         for i, p in enumerate(self.pats):
-            p.set_xy(self.grid.pos[i, :]-new_size[i]/2)
             p.set_transform(Affine2D().rotate_deg_around(
                 *self.grid.pos[i, :], new_angle[i])+self.ax.transData)
-            p.set_width(new_size[i])
-            p.set_height(new_size[i])
+            self.ax.add_patch(p)
+
         self.fig.canvas.draw_idle()
 
-    def create_square_points(self, grid):
+        # for i, p in enumerate(self.pats):
+        #     # p.set_xy(self.grid.pos[i, :]-new_size[i]/2)
+        #     p.set_transform(Affine2D().rotate_deg_around(
+        #         *self.grid.pos[i, :], new_angle[i])+self.ax.transData)
+        #     p.set(radius=new_size[i])
 
-        self.fig = plt.figure(figsize=(7, 7), facecolor=self.mid)
+    def create_points(self, grid, slider=False):
+
+        self.fig = plt.figure(figsize=(6, 6), facecolor=self.white)
         self.ax = plt.subplot(111)
 
         self.grid = grid
@@ -106,17 +96,16 @@ class Figure_Lattice:
         displ = grid.displacement(0)
 
         self.points = self.ax.scatter(
-            displ[:, 0], displ[:, 1], s=sizes, c=self.white)
+            displ[:, 0], displ[:, 1], s=sizes, c=self.gray)
 
-        d = 0
-        big_frame = patches.Rectangle(
-            (0-d, 0-d), grid.N-1+2*d, grid.N-1+2*d, fc=self.white, ec=self.mid, zorder=0)
-        self.ax.add_patch(big_frame)
-        self.ax.set_xlim(-1.5, grid.N+0.5)
-        self.ax.set_ylim(-1.5, grid.N+0.5)
+        self.ax.set_xlim(-grid.furth_dist-2, grid.furth_dist+2)
+        self.ax.set_ylim(-grid.furth_dist-2, grid.furth_dist+2)
         self.ax.set_axis_off()
 
-    def update_point_pos_size(self, val):
+        if slider:
+            self.create_time_slider(self.update_points)
+
+    def update_points(self, val):
         new_pos = self.grid.displacement(val)
         new_size = self.grid.size_dot(val)
         self.points.set_offsets(new_pos)
