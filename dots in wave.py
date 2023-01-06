@@ -1,17 +1,17 @@
 import matplotlib.pyplot as plt
-from grid_classes import Square_Lattice as SL
+from grid_classes import Lattice as Lat
 from plotting import Figure_Lattice as Fig
 
-num_poly = 4
+tot_num_poly = 40
 angle = 35
 # approx number of wavelengths in the direction
 fr = 1.3
 
-grid = SL(num_poly, "hex", 4, 3, angle, fr)
-fig = Fig(negative=True)
+grid = Lat(tot_num_poly, "tri", 4, 3, angle, fr)
+fig = Fig()
 
-fig.create_points(grid, slider=True)
+# fig.create_points(grid, slider=True)
 
-# fig.create_poly(grid, t=0.25, slider=True)
+fig.create_poly(grid, t=0.25, slider=True)
 
 plt.show()

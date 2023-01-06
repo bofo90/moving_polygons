@@ -1,11 +1,11 @@
 import numpy as np
 
 
-class Square_Lattice:
-    def __init__(self, N_latt, latt_shape, smal_poly, big_poly, angle, fr) -> None:
+class Lattice:
+    def __init__(self, num_points, latt_shape, smal_poly, big_poly, angle, fr) -> None:
         self.smal_poly = smal_poly
         self.big_poly = big_poly
-        self.N_latt = N_latt
+        self.num_points = num_points
         self.dir = angle*np.pi/180
 
         latt_opt = {"sq": self.create_sq_lattice_points,
@@ -19,17 +19,19 @@ class Square_Lattice:
         self.k = np.array([np.cos(self.dir), np.sin(self.dir)])*self.fr
 
     def create_sq_lattice_points(self):
-        pos = np.zeros((self.N_latt, self.N_latt, 2)).astype(float)
+        N = np.int(np.round(np.sqrt(self.num_points)))
+        pos = np.zeros((N, N, 2)).astype(float)
         pos[:, :, 0], pos[:, :, 1] = np.meshgrid(
-            np.arange(self.N_latt), np.arange(self.N_latt))
+            np.arange(N), np.arange(N))
         self.pos = np.reshape(pos, (-1, 2))
-        self.pos -= (self.N_latt-1)/2
+        self.pos -= (N-1)/2
 
     def create_hex_lattice_points(self):
+        N = np.int(np.round(np.sqrt(self.num_points/3)))
         latt_pos = []
         deltas = [[1, 0, -1], [0, 1, -1], [-1, 1, 0],
                   [-1, 0, 1], [0, -1, 1], [1, -1, 0]]
-        for r in range(self.N_latt):
+        for r in range(N):
             x = 0
             y = -r
             z = +r
@@ -52,10 +54,11 @@ class Square_Lattice:
         self.pos = np.append([x], [y], axis=0).T
 
     def create_tri_lattice_points(self):
+        N = np.int(np.round(np.sqrt(2*self.num_points)))
         pos = []
         drift_x = 0
         drift_y = 0
-        for i in reversed(range(self.N_latt)):
+        for i in reversed(range(N)):
             for j in range(i+1):
                 pos.append([drift_x+j, drift_y])
             drift_y -= np.sqrt(3)/2

@@ -20,7 +20,7 @@ class Figure_Lattice:
 
     def create_poly(self, grid, t=0, slider=False):
 
-        self.fig = plt.figure(figsize=(6, 6), facecolor=self.mid)
+        self.fig = plt.figure(figsize=(6, 6), facecolor=self.white)
         self.fig.subplots_adjust(left=0.,
                                  bottom=0.,
                                  right=1.,
@@ -79,12 +79,6 @@ class Figure_Lattice:
             self.ax.add_patch(p)
 
         self.fig.canvas.draw_idle()
-
-        # for i, p in enumerate(self.pats):
-        #     # p.set_xy(self.grid.pos[i, :]-new_size[i]/2)
-        #     p.set_transform(Affine2D().rotate_deg_around(
-        #         *self.grid.pos[i, :], new_angle[i])+self.ax.transData)
-        #     p.set(radius=new_size[i])
 
     def create_points(self, grid, slider=False):
 
